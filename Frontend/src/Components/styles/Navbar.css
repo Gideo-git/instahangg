@@ -49,6 +49,7 @@
 }
 .notif-btn:hover {
   background: rgba(13, 148, 136, 0.08);
+  cursor:pointer;
 }
 .notif-dot {
   position: absolute;
@@ -75,6 +76,10 @@
   backdrop-filter: blur(12px);
   overflow: hidden;
   z-index: 100;
+}
+
+.profile-btn{
+  cursor:pointer;
 }
 
 /* Dropdown content */
