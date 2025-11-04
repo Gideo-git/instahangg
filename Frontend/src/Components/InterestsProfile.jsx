@@ -79,9 +79,11 @@ const PersonalityQuiz = ({ onResult }) => {
               className="w-full accent-orange-500 cursor-pointer"
             />
             <div className="scale-labels flex justify-between text-xs text-gray-500">
+            <span>Highly Disagree</span>
               <span>Disagree</span>
               <span>Neutral</span>
               <span>Agree</span>
+              <span>Highly Agree</span>
             </div>
           </div>
         ))}
