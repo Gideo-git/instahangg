@@ -80,9 +80,9 @@ const PersonalityQuiz = ({ onResult }) => {
             />
             <div className="scale-labels flex justify-between text-xs text-gray-500">
             <span>Highly Disagree</span>
-              <span>Disagree</span>
+              <span className="one">Disagree</span>
               <span>Neutral</span>
-              <span>Agree</span>
+              <span className="two">Agree</span>
               <span>Highly Agree</span>
             </div>
           </div>
