@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Store } from "react-notifications-component";
 import Navbar from "./Navbar";
-import { User, ArrowRight, Sparkles } from "lucide-react";
+import { User, ArrowRight, Sparkles, Eye } from "lucide-react";
 import "./styles/MatchingUsers.css";
 
 const showNotification = (title, message, type = "success", duration = 3000) => {
@@ -41,19 +41,20 @@ function MatchingUsers() {
       if (!token) return;
 
       const [connectionsRes, sentRequestsRes] = await Promise.all([
-        axios.get("https://backend-3ex6nbvuga-el.a.run.app/connections", {
+        axios.get("http://localhost:8080/connections", {
           headers: { Authorization: `Bearer ${token}` },
         }),
-        axios.get("https://backend-3ex6nbvuga-el.a.run.app/connections/requests/sent", {
+        axios.get("http://localhost:8080/connections/requests/sent", {
           headers: { Authorization: `Bearer ${token}` },
         }),
       ]);
 
       const connectedIds =
-        connectionsRes.data.connections?.map((conn) => conn.user?.id) || [];
+        connectionsRes.data.connections?.map((c) => c.user?.id) || [];
+
       const pendingIds =
         sentRequestsRes.data.requests?.map(
-          (req) => req.receiverId?._id || req.receiverId
+          (r) => r.receiverId?._id || r.receiverId
         ) || [];
 
       setConnectedUserIds(connectedIds);
@@ -72,14 +73,18 @@ function MatchingUsers() {
       }
 
       setLoading(true);
-      const response = await axios.get(`https://backend-3ex6nbvuga-el.a.run.app/interests/matches`, {
-        params: { limit: limitValue },
-        headers: { Authorization: `Bearer ${token}` },
-      });
+
+      const response = await axios.get(
+        "http://localhost:8080/interests/matches",
+        {
+          params: { limit: limitValue },
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       setUsers(response.data.users || []);
     } catch (error) {
-      console.error("Error fetching matching users:", error);
+      console.error("Error fetching matched users:", error);
       showNotification("Error", "Failed to load matching users", "danger");
     } finally {
       setLoading(false);
@@ -90,10 +95,9 @@ function MatchingUsers() {
     try {
       const token = localStorage.getItem("token");
       if (!token) return navigate("/login");
-      if (!userId) return showNotification("Error", "Invalid user ID", "danger");
 
       await axios.post(
-        `https://backend-3ex6nbvuga-el.a.run.app/connections/request`,
+        "http://localhost:8080/connections/request",
         { receiverId: userId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -104,7 +108,7 @@ function MatchingUsers() {
       console.error("Error sending connection request:", error);
       showNotification(
         "Request Failed",
-        error.response?.data?.message || "Failed to send connection request",
+        error.response?.data?.message || "Failed to send request",
         "danger"
       );
     }
@@ -117,7 +121,8 @@ function MatchingUsers() {
   return (
     <div className="matching-bg min-h-screen">
       <Navbar />
-      <div className="container mx-auto max-w-4xl px-4 mt-28 pb-10">
+
+      <div className="container mx-auto max-w-4xl px-4 pb-14 matching-container">
         <h1 className="matching-title text-center mb-10">
           Discover People Who Share Your Energy ✨
         </h1>
@@ -138,29 +143,27 @@ function MatchingUsers() {
           </div>
         ) : (
           <div className="space-y-6">
-            {filteredUsers.map((user, index) => {
+            {filteredUsers.map((user, idx) => {
               const userId = user.userId;
+
               return (
                 <div
-                  key={index}
+                  key={idx}
                   className="match-card bg-white/80 backdrop-blur-md rounded-2xl p-6 border border-teal-100 shadow-sm hover:shadow-lg hover:scale-[1.01] transition-all duration-300"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-4">
                       <img
-                        src={`https://api.dicebear.com/7.x/thumbs/svg?seed=${
-                          user.user?.UserName || "user"
-                        }`}
+                        src={`https://api.dicebear.com/7.x/thumbs/svg?seed=${user.user?.UserName || "user"}`}
                         alt="User avatar"
-                        className="w-16 h-16 rounded-full border-2 border-teal-300 shadow-sm"
+                        className="match-avatar"
                       />
+
                       <div>
                         <h3 className="text-xl font-semibold text-gray-800">
                           {user.user?.name || "User"}
                         </h3>
-                        <p className="text-sm text-gray-500 mb-2">
-                          @{user.user?.UserName || "username"}
-                        </p>
+                        <p className="text-sm text-gray-500 mb-2">@{user.user?.UserName}</p>
 
                         <div className="flex items-center text-sm text-teal-700 mb-3">
                           <Sparkles size={16} className="mr-1" />
@@ -173,28 +176,9 @@ function MatchingUsers() {
                           <div className="mb-3">
                             <p className="text-sm text-gray-500 mb-1">Interests</p>
                             <div className="flex flex-wrap gap-2">
-                              {user.interests.slice(0, 5).map((interest, idx) => (
-                                <span
-                                  key={idx}
-                                  className="tag-chip interest"
-                                >
+                              {user.interests.slice(0, 6).map((interest, idx2) => (
+                                <span key={idx2} className="tag-chip interest">
                                   {interest}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {user.activities?.length > 0 && (
-                          <div>
-                            <p className="text-sm text-gray-500 mb-1">Activities</p>
-                            <div className="flex flex-wrap gap-2">
-                              {user.activities.slice(0, 3).map((activity, idx) => (
-                                <span
-                                  key={idx}
-                                  className="tag-chip activity"
-                                >
-                                  {activity}
                                 </span>
                               ))}
                             </div>
@@ -203,12 +187,22 @@ function MatchingUsers() {
                       </div>
                     </div>
 
-                    <button
-                      onClick={() => handleConnect(userId)}
-                      className="connect-btn"
-                    >
-                      Connect <ArrowRight size={16} />
-                    </button>
+                    <div className="flex flex-col items-end gap-2">
+                      <button
+                        className="view-btn"
+                        onClick={() => navigate(`/profile/${userId}`)}
+                      >
+                        <Eye size={16} />
+                        View
+                      </button>
+
+                      <button
+                        onClick={() => handleConnect(userId)}
+                        className="connect-btn"
+                      >
+                        Connect <ArrowRight size={16} />
+                      </button>
+                    </div>
                   </div>
 
                   {user.bio && (
@@ -231,6 +225,7 @@ function MatchingUsers() {
             >
               Show Fewer
             </button>
+
             <button
               onClick={() => setLimitValue(limitValue + 10)}
               className="limit-btn primary"

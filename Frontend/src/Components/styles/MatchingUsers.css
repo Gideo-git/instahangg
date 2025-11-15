@@ -1,28 +1,41 @@
-/* 🌊 Background */
+/* Background */
 .matching-bg {
   background: linear-gradient(135deg, #e0fdf4 0%, #dbeafe 40%, #f0fdfa 100%);
   font-family: "Inter", sans-serif;
 }
 
-/* 🌟 Title */
-.matching-title {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #0f766e;
-  letter-spacing: -0.02em;
+/* Fix gap under navbar */
+.matching-container {
+  padding-top: 90px;
 }
 
-/* 🧩 Match Card */
+/* Title */
+.matching-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #0f766e;
+}
+
+/* Match Card */
 .match-card {
   transition: all 0.3s ease;
 }
 .match-card:hover {
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.92);
   transform: translateY(-4px);
-  box-shadow: 0 10px 28px rgba(13, 148, 136, 0.2);
+  box-shadow: 0 12px 32px rgba(13, 148, 136, 0.22);
 }
 
-/* 💬 Tags */
+/* Avatar */
+.match-avatar {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  border: 3px solid #99f6e4;
+  box-shadow: 0 4px 12px rgba(0, 128, 128, 0.12);
+}
+
+/* Tags */
 .tag-chip {
   font-size: 0.75rem;
   padding: 6px 12px;
@@ -34,15 +47,30 @@
   background: linear-gradient(to right, #99f6e4, #5eead4);
   color: #064e3b;
 }
-.tag-chip.activity {
-  background: linear-gradient(to right, #bae6fd, #67e8f9);
-  color: #0c4a6e;
-}
 .tag-chip:hover {
-  transform: scale(1.05);
+  transform: scale(1.08);
 }
 
-/* ⚡ Connect Button */
+/* View Button */
+.view-btn {
+  background: white;
+  border: 1px solid #94f3df;
+  padding: 0.45rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: #0d9488;
+  transition: all 0.25s ease;
+}
+.view-btn:hover {
+  background: #ecfffb;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(45, 212, 191, 0.35);
+}
+
+/* Connect Button */
 .connect-btn {
   background: linear-gradient(to right, #0d9488, #14b8a6);
   color: white;
@@ -60,10 +88,10 @@
 .connect-btn:hover {
   background: linear-gradient(to right, #0f766e, #0d9488);
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(13, 148, 136, 0.35);
+  box-shadow: 0 10px 24px rgba(13, 148, 136, 0.35);
 }
 
-/* 🔁 Limit Buttons */
+/* Limit buttons */
 .limit-btn {
   background: white;
   border: 1px solid #99f6e4;
@@ -71,7 +99,6 @@
   border-radius: 9999px;
   padding: 0.6rem 1.2rem;
   font-weight: 500;
-  font-size: 0.9rem;
   transition: all 0.3s ease;
 }
 .limit-btn.primary {

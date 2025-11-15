@@ -2,7 +2,7 @@ import { io } from "socket.io-client";
 
 export function createSocket() {
   const token = localStorage.getItem("token");
-  const socket = io("http://localhost:8500", {
+  const socket = io("http://localhost:8080", {
     auth: { token },
     transports: ["websocket"],
   });

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useLocation, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Navbar from "./Navbar";
 import { Store } from "react-notifications-component";
@@ -22,30 +22,31 @@ export default function ProfilePage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
-  const [loading, setLoading] = useState(true); // ✅ Always start with loading
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [connecting, setConnecting] = useState(false);
   const [connected, setConnected] = useState(false);
 
+  // A universal back handler that always returns to previous page
+  const goBack = () => {
+    if (window.history.length > 1) navigate(-1);
+    else navigate("/discover"); // Fallback if no history exists
+  };
+
   useEffect(() => {
     const fetchUserProfile = async () => {
       if (!id) return;
-      
+
       try {
         setLoading(true);
-        const response = await axios.get(`https://backend-3ex6nbvuga-el.a.run.app/interests/${id}`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        });
+        const response = await axios.get(
+          `https://backend-3ex6nbvuga-el.a.run.app/interests/${id}`,
+          {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          }
+        );
 
-        console.log("✅ Full response:", response.data);
-        
-        // ✅ Get the profile data
         const profileData = response.data.profile || response.data;
-        
-        console.log("✅ Setting userData to:", profileData);
-        console.log("✅ Has personalitySummary?", !!profileData.personalitySummary);
-        console.log("✅ Has summary?", !!profileData.summary);
-        
         setUserData(profileData);
       } catch (error) {
         console.error("Error fetching user profile:", error);
@@ -55,18 +56,14 @@ export default function ProfilePage() {
       }
     };
 
-    fetchUserProfile(); // ✅ Always fetch, don't rely on location.state
+    fetchUserProfile();
   }, [id]);
 
   const handleConnect = async (userId) => {
     try {
       const token = localStorage.getItem("token");
       if (!token) return navigate("/login");
-
-      if (!userId) {
-        showNotification("Error", "Invalid user ID", "danger");
-        return;
-      }
+      if (!userId) return showNotification("Error", "Invalid user ID", "danger");
 
       setConnecting(true);
       await axios.post(
@@ -102,8 +99,8 @@ export default function ProfilePage() {
       <div className="profile-bg min-h-screen flex flex-col items-center justify-center text-center">
         <Navbar />
         <p className="text-gray-700 mb-4">{error || "User not found."}</p>
-        <button className="back-btn" onClick={() => navigate("/map")}>
-          ⬅ Back to Map
+        <button className="back-btn" onClick={goBack}>
+          ⬅ Back
         </button>
       </div>
     );
@@ -139,7 +136,7 @@ export default function ProfilePage() {
             </div>
           )}
 
-          {/* 🧠 Personality Summary */}
+          {/* Personality Summary */}
           {(userData.personalitySummary || userData.summary) && (
             <div className="profile-section mb-8">
               <h3>🧠 Personality</h3>
@@ -177,7 +174,7 @@ export default function ProfilePage() {
 
           {/* Buttons */}
           <div className="profile-actions">
-            <button className="back-btn" onClick={() => navigate("/map")}>
+            <button className="back-btn" onClick={goBack}>
               ⬅ Back
             </button>
 
@@ -186,11 +183,7 @@ export default function ProfilePage() {
               onClick={() => handleConnect(id)}
               disabled={connecting || connected}
             >
-              {connected
-                ? "Connected"
-                : connecting
-                ? "Sending..."
-                : "Connect"}
+              {connected ? "Connected" : connecting ? "Sending..." : "Connect"}
             </button>
           </div>
         </div>

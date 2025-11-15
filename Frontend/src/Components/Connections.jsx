@@ -5,7 +5,7 @@ import { Store } from "react-notifications-component";
 import Navbar from "./Navbar";
 import ChatWindow from "./ChatWindow";
 import { UserCheck, UsersRound, Shield, Trash2, MessageSquare } from "lucide-react";
-import "./styles/Connections.css"; // 👈 new CSS file
+import "./styles/Connections.css";
 
 const showNotification = (title, message, type = "success", duration = 3000) => {
   Store.addNotification({
@@ -39,9 +39,10 @@ function Connections() {
       }
 
       setLoading(true);
-      const response = await axios.get("https://backend-3ex6nbvuga-el.a.run.app/connections", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axios.get(
+        "https://backend-3ex6nbvuga-el.a.run.app/connections",
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
       setConnections(response.data.connections || []);
     } catch (error) {
@@ -59,12 +60,16 @@ function Connections() {
 
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`https://backend-3ex6nbvuga-el.a.run.app/connections/${connectionId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      await axios.delete(`https://backend-3ex6nbvuga-el.a.run.app/chat/history/${friendId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+
+      await axios.delete(
+        `https://backend-3ex6nbvuga-el.a.run.app/connections/${connectionId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      await axios.delete(
+        `https://backend-3ex6nbvuga-el.a.run.app/chat/history/${friendId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
       setConnections((prev) => prev.filter((c) => c.connectionId !== connectionId));
 
@@ -87,6 +92,7 @@ function Connections() {
   return (
     <div className="connections-bg min-h-screen flex flex-col">
       <Navbar />
+
       <div className="container mx-auto max-w-6xl px-6 py-10 mt-20">
         {/* Header */}
         <div className="flex justify-between items-center mb-10">
@@ -102,7 +108,7 @@ function Connections() {
           </button>
         </div>
 
-        {/* Loading */}
+        {/* Loading State */}
         {loading ? (
           <div className="flex justify-center py-20">
             <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-sky-500"></div>
@@ -126,18 +132,24 @@ function Connections() {
             {connections.map((connection) => (
               <div key={connection.connectionId} className="connection-card transition-all">
                 <div className="flex items-center justify-between">
-                  {/* User Info */}
+
+                  {/* USER DETAILS */}
                   <div className="flex items-center gap-4">
                     <img
-                      src={`https://api.dicebear.com/7.x/thumbs/svg?seed=${connection.user?.UserName || "user"}`}
+                      src={
+                        connection.user?.profilePic ||
+                        `https://api.dicebear.com/7.x/thumbs/svg?seed=${connection.user?.UserName || "user"}`
+                      }
                       alt="User avatar"
                       className="avatar"
                     />
+
                     <div>
                       <h3 className="font-semibold text-lg text-gray-800">
                         {connection.user?.name || "User"}
                       </h3>
-                      <p className="text-sm text-gray-500">@{connection.user?.UserName || "username"}</p>
+                      <p className="text-sm text-gray-500">@{connection.user?.UserName}</p>
+
                       <div className="flex items-center mt-2 text-xs text-gray-500">
                         <UserCheck size={14} className="mr-1 text-sky-600" />
                         <span>Since {formatDate(connection.since)}</span>
@@ -145,8 +157,22 @@ function Connections() {
                     </div>
                   </div>
 
-                  {/* Actions */}
+                  {/* ACTION BUTTONS */}
                   <div className="flex flex-col gap-2">
+
+                    {/* VIEW PROFILE BUTTON */}
+                    <button
+                      onClick={() =>
+                        navigate(`/profile/${connection.user?.id}`, {
+                          state: { user: connection.user },
+                        })
+                      }
+                      className="view-btn flex items-center gap-1 justify-center px-4 py-2 rounded-lg text-sm font-medium"
+                    >
+                      <UserCheck size={14} /> View Profile
+                    </button>
+
+                    {/* MESSAGE BUTTON */}
                     <button
                       onClick={() =>
                         setChatPeer({
@@ -159,6 +185,7 @@ function Connections() {
                       <MessageSquare size={15} /> Message
                     </button>
 
+                    {/* REMOVE FRIEND BUTTON */}
                     <button
                       onClick={() =>
                         handleRemoveFriend(

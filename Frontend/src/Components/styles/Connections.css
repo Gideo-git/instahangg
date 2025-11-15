@@ -11,7 +11,9 @@
   border: 1px solid rgba(56, 189, 248, 0.2);
   backdrop-filter: blur(10px);
   box-shadow: 0 4px 12px rgba(14, 165, 233, 0.15);
+  transition: all 0.3s ease;
 }
+
 .requests-btn:hover {
   background: rgba(255, 255, 255, 0.9);
   transform: translateY(-1px);
@@ -28,6 +30,7 @@
   backdrop-filter: blur(14px);
   transition: all 0.3s ease;
 }
+
 .connection-card:hover {
   transform: translateY(-3px);
   box-shadow: 0 10px 25px rgba(56, 189, 248, 0.2);
@@ -44,17 +47,41 @@
   box-shadow: 0 4px 10px rgba(56, 189, 248, 0.15);
 }
 
+/* 🔘 Shared styles for all buttons */
+.connection-card button {
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
 /* 💬 Message Button */
 .message-btn {
   background: linear-gradient(to right, #0ea5e9, #38bdf8);
   color: #fff;
-  box-shadow: 0 4px 14px rgba(14, 165, 233, 0.3);
-  transition: all 0.25s ease;
+  box-shadow: 0 3px 12px rgba(14, 165, 233, 0.3);
 }
+
 .message-btn:hover {
   background: linear-gradient(to right, #0284c7, #22d3ee);
-  transform: scale(1.03);
+  transform: translateY(-1px) scale(1.03);
   box-shadow: 0 6px 18px rgba(14, 165, 233, 0.35);
+}
+
+/* 👁 View Profile Button */
+.view-btn {
+  background: rgba(240, 249, 255, 0.85);
+  color: #0369a1;
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  box-shadow: 0 3px 10px rgba(14, 165, 233, 0.18);
+}
+
+.view-btn:hover {
+  background: rgba(224, 242, 254, 1);
+  transform: translateY(-1px) scale(1.03);
+  box-shadow: 0 6px 16px rgba(56, 189, 248, 0.3);
 }
 
 /* ❌ Remove Button */
@@ -62,11 +89,11 @@
   background: rgba(241, 245, 249, 0.8);
   color: #334155;
   border: 1px solid rgba(203, 213, 225, 0.7);
-  transition: all 0.2s ease;
 }
+
 .remove-btn:hover {
   background: rgba(248, 250, 252, 1);
-  transform: scale(1.02);
+  transform: translateY(-1px) scale(1.03);
   box-shadow: 0 3px 8px rgba(148, 163, 184, 0.2);
 }
 
@@ -78,8 +105,8 @@
   box-shadow: 0 6px 20px rgba(14, 165, 233, 0.1);
   backdrop-filter: blur(10px);
   padding: 2rem;
-  transition: all 0.3s ease;
 }
+
 .empty-state:hover {
   box-shadow: 0 8px 25px rgba(14, 165, 233, 0.2);
 }
@@ -87,9 +114,11 @@
 /* ✨ Discover Button */
 .discover-btn {
   background: linear-gradient(to right, #0ea5e9, #38bdf8);
+  color: white;
   box-shadow: 0 4px 14px rgba(14, 165, 233, 0.25);
   transition: all 0.3s ease;
 }
+
 .discover-btn:hover {
   background: linear-gradient(to right, #0284c7, #22d3ee);
   transform: translateY(-2px);
