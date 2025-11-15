@@ -41,10 +41,10 @@ function MatchingUsers() {
       if (!token) return;
 
       const [connectionsRes, sentRequestsRes] = await Promise.all([
-        axios.get("http://localhost:8080/connections", {
+        axios.get("https://backend-3ex6nbvuga-el.a.run.app/connections", {
           headers: { Authorization: `Bearer ${token}` },
         }),
-        axios.get("http://localhost:8080/connections/requests/sent", {
+        axios.get("https://backend-3ex6nbvuga-el.a.run.app/connections/requests/sent", {
           headers: { Authorization: `Bearer ${token}` },
         }),
       ]);
@@ -75,7 +75,7 @@ function MatchingUsers() {
       setLoading(true);
 
       const response = await axios.get(
-        "http://localhost:8080/interests/matches",
+        "https://backend-3ex6nbvuga-el.a.run.app/interests/matches",
         {
           params: { limit: limitValue },
           headers: { Authorization: `Bearer ${token}` },
@@ -97,7 +97,7 @@ function MatchingUsers() {
       if (!token) return navigate("/login");
 
       await axios.post(
-        "http://localhost:8080/connections/request",
+        "https://backend-3ex6nbvuga-el.a.run.app/connections/request",
         { receiverId: userId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
