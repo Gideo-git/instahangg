@@ -11,18 +11,19 @@ export default function ChatWindow({ peerId, peerName, onClose }) {
 
   const socketRef = useRef(null);
 
+  // Current logged-in user
   const me = (() => {
     try {
       const token = localStorage.getItem("token");
       if (!token) return null;
       const payload = JSON.parse(atob(token.split(".")[1]));
       return payload.userId || payload.id || payload._id;
-    } catch (err) {
+    } catch {
       return decodeUserIdFromToken();
     }
   })();
 
-  // FETCH HISTORY
+  // 1) FETCH CHAT HISTORY
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token || !peerId) return;
@@ -34,26 +35,26 @@ export default function ChatWindow({ peerId, peerName, onClose }) {
       .then((res) => {
         setMessages(res.data?.messages || []);
       })
-      .catch((e) => console.error("History fetch error", e));
+      .catch((e) => console.error("History fetch error:", e));
   }, [peerId]);
 
-  // SOCKET SETUP
+  // 2) SOCKET SETUP
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token || !peerId) return;
 
-    const s = createSocket();
+    const s = createSocket(); // this already sets auth.token
     socketRef.current = s;
 
-    s.on("connect", () => {
-      s.emit("register", me);
-    });
-
-    // RECEIVING MESSAGES
+    // Receive real messages (sent or received)
     s.on("message", (msg) => {
+      const from = String(msg.from);
+      const to = String(msg.to);
+
+      // only messages between me <-> peer
       if (
-        (String(msg.from) === String(me) && String(msg.to) === String(peerId)) ||
-        (String(msg.from) === String(peerId) && String(msg.to) === String(me))
+        (from === String(me) && to === String(peerId)) ||
+        (from === String(peerId) && to === String(me))
       ) {
         setMessages((prev) => {
           const exists = prev.some(
@@ -61,47 +62,45 @@ export default function ChatWindow({ peerId, peerName, onClose }) {
               m._id === msg._id ||
               (m.optimistic &&
                 m.text === msg.text &&
-                String(m.from) === String(msg.from) &&
-                String(m.to) === String(msg.to))
+                String(m.from) === from &&
+                String(m.to) === to)
           );
-          if (exists) return prev;
-          return [...prev, msg];
+          return exists ? prev : [...prev, msg];
         });
       }
     });
 
-    // INITIAL ONLINE USERS
+    // List of online users when connecting
     s.on("online_users", (ids) => {
-      if (ids.includes(String(peerId))) {
-        setPeerOnline(true);
-      }
+      if (ids.includes(String(peerId))) setPeerOnline(true);
+      else setPeerOnline(false);
     });
 
-    // PEER JUST CAME ONLINE
+    // Peer came online
     s.on("peer_online", (id) => {
       if (String(id) === String(peerId)) setPeerOnline(true);
     });
 
-    // PEER LEFT
+    // Peer went offline
     s.on("peer_offline", (id) => {
       if (String(id) === String(peerId)) setPeerOnline(false);
     });
 
     return () => {
-      s.close();
+      s.disconnect();
     };
   }, [peerId, me]);
 
-  // SEND MESSAGE
+  // 3) SEND MESSAGE
   const send = () => {
     const text = input.trim();
     if (!text || !peerId) return;
 
-    const token = localStorage.getItem("token");
     const s = socketRef.current;
-
     const tempId = `temp-${Date.now()}`;
+    const token = localStorage.getItem("token");
 
+    // Optimistic message for instant UI feedback
     const optimistic = {
       _id: tempId,
       from: me,
@@ -114,6 +113,7 @@ export default function ChatWindow({ peerId, peerName, onClose }) {
     setMessages((prev) => [...prev, optimistic]);
     setInput("");
 
+    // If socket is connected use socket
     if (s && s.connected) {
       s.emit("send_message", { to: peerId, text }, (ack) => {
         if (ack?.ok && ack.message?._id) {
@@ -125,6 +125,7 @@ export default function ChatWindow({ peerId, peerName, onClose }) {
       return;
     }
 
+    // Fallback to REST send if socket died
     axios
       .post(
         `https://backend-3ex6nbvuga-el.a.run.app/chat/send`,
@@ -139,23 +140,22 @@ export default function ChatWindow({ peerId, peerName, onClose }) {
           );
         }
       })
-      .catch((e) => console.error("REST send failed", e));
+      .catch((e) => console.error("REST send failed:", e));
   };
 
-  // AUTO SCROLL
+  // AUTO SCROLL TO BOTTOM
   useEffect(() => {
     const el = document.getElementById("chat-scroll");
     if (el) {
-      el.scrollTo({
-        top: el.scrollHeight,
-        behavior: "smooth",
-      });
+      el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
     }
   }, [messages]);
 
+  // UI
   return (
     <div className="chat-overlay">
       <div className="chat-window">
+        {/* HEADER */}
         <div className="chat-header">
           <div>
             <h3 className="chat-peer-name">{peerName || "User"}</h3>
@@ -169,11 +169,11 @@ export default function ChatWindow({ peerId, peerName, onClose }) {
               </span>
             )}
           </div>
-          <button onClick={onClose} className="chat-close-btn">
-            ✕
-          </button>
+
+          <button onClick={onClose} className="chat-close-btn">✕</button>
         </div>
 
+        {/* CHAT BODY */}
         <div
           id="chat-scroll"
           className="chat-body"
@@ -198,6 +198,7 @@ export default function ChatWindow({ peerId, peerName, onClose }) {
           ))}
         </div>
 
+        {/* INPUT BAR */}
         <div className="chat-input-bar">
           <input
             className="chat-input"
